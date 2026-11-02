@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- MathJax for rendering equations -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -548,7 +548,6 @@
 
     <!-- JAVASCRIPT LOGIC (Module-Safe Listener Binding) -->
     <script type="module">
-        console.log("Vite Env Check:", import.meta.env);
         // State variables
         let currentSlide = 1;
         let currentDemoStep = 1;
@@ -556,11 +555,11 @@
         let synth = window.speechSynthesis;
         let isSpeaking = false;
 
-        const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : {};
+        // Safely access env object without throwing Uncaught TypeError on static hosts
+        const env = (typeof import.meta !== 'undefined' && import.meta && import.meta.env) ? import.meta.env : {};
 
-        // Auto-loads key from environment variables (e.g., Vite .env VITE_ELEVENLABS_API_KEY)
-        const elevenApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
-        const elevenVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
+        const elevenApiKey = env.VITE_ELEVENLABS_API_KEY || '';
+        const elevenVoiceId = env.VITE_ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
         
         console.log("Vite Env Check:", env);
         console.log("Loaded API Key Length:", elevenApiKey.length);
@@ -745,7 +744,7 @@
                     },
                     body: JSON.stringify({
                         text: text,
-                        model_id: 'eleven_turbo_v2_5', // Updated to stable Turbo model
+                        model_id: 'eleven_turbo_v2_5',
                         voice_settings: {
                             stability: 0.5,
                             similarity_boost: 0.75,
@@ -756,7 +755,6 @@
                 });
 
                 if (!response.ok) {
-                    // Log exact API response body to console if another error occurs
                     const errDetails = await response.text();
                     throw new Error(`API error ${response.status}: ${errDetails}`);
                 }
@@ -798,6 +796,7 @@
                 speakWebSpeech(text);
             }
         }
+
         function speakWebSpeech(text) {
             if (!synth) return;
             stopAudio();
