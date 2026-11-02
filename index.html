@@ -546,7 +546,8 @@
     </footer>
 
     <!-- JAVASCRIPT LOGIC -->
-    <script type="module">
+    <!-- JAVASCRIPT LOGIC (Static & GitHub Pages Safe) -->
+    <script>
         // State variables
         let currentSlide = 1;
         let currentDemoStep = 1;
@@ -554,21 +555,11 @@
         let synth = window.speechSynthesis;
         let isSpeaking = false;
 
-        // SAFE RUNTIME CHECK: Works on both local Vite dev and static GitHub Pages
-        let elevenApiKey = '';
-        let elevenVoiceId = 'pNInz6obpgDQGcFmaJgB';
-
-        try {
-            // Safely check if import.meta and import.meta.env exist without throwing
-            if (typeof import.meta !== 'undefined' && import.meta && import.meta.env) {
-                elevenApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
-                elevenVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
-            }
-        } catch (e) {
-            console.warn("Static host detected. Falling back to browser WebSpeech.");
-        }
-
-        console.log("Loaded API Key Length:", elevenApiKey.length);
+        // ELEVENLABS CONFIGURATION
+        // Leave empty for static GitHub Pages to use browser WebSpeech fallback automatically.
+        // If you want ElevenLabs active on GitHub Pages, paste your 'sk_...' key directly into elevenApiKey below.
+        const elevenApiKey = '';
+        const elevenVoiceId = 'pNInz6obpgDQGcFmaJgB';
 
         let currentAudioObj = null;
         let currentUtterance = null;
@@ -689,7 +680,6 @@
 
             const textToSpeak = slideTranscripts[currentSlide] || "No transcript available for this slide.";
 
-            // Only attempt ElevenLabs if an API key is present; otherwise use browser voice
             if (elevenApiKey && elevenApiKey.length > 0) {
                 await speakElevenLabs(textToSpeak);
             } else {
