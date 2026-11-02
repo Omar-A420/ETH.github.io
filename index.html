@@ -556,10 +556,13 @@
         let synth = window.speechSynthesis;
         let isSpeaking = false;
 
+        const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : {};
+
         // Auto-loads key from environment variables (e.g., Vite .env VITE_ELEVENLABS_API_KEY)
         const elevenApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
         const elevenVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
-
+        
+        console.log("Vite Env Check:", env);
         console.log("Loaded API Key Length:", elevenApiKey.length);
 
         let currentAudioObj = null;
