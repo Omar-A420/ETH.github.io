@@ -9,7 +9,6 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- MathJax for rendering equations -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
     <script>
         tailwind.config = {
@@ -546,7 +545,7 @@
         </div>
     </footer>
 
-    <!-- JAVASCRIPT LOGIC (Module-Safe Listener Binding) -->
+    <!-- JAVASCRIPT LOGIC -->
     <script type="module">
         // State variables
         let currentSlide = 1;
@@ -555,13 +554,19 @@
         let synth = window.speechSynthesis;
         let isSpeaking = false;
 
-        // Safely access env object without throwing Uncaught TypeError on static hosts
-        const env = (typeof import.meta !== 'undefined' && import.meta && import.meta.env) ? import.meta.env : {};
+        // SAFE RUNTIME CHECK: Prevents Uncaught TypeError when import.meta or import.meta.env is undefined on static hosts
+        let elevenApiKey = '';
+        let elevenVoiceId = 'pNInz6obpgDQGcFmaJgB';
 
-        const elevenApiKey = env.VITE_ELEVENLABS_API_KEY || '';
-        const elevenVoiceId = env.VITE_ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
-        
-        console.log("Vite Env Check:", env);
+        try {
+            if (typeof import.meta !== 'undefined' && import.meta && import.meta.env) {
+                elevenApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
+                elevenVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
+            }
+        } catch (e) {
+            console.warn("Static environment context detected, using WebSpeech fallback.");
+        }
+
         console.log("Loaded API Key Length:", elevenApiKey.length);
 
         let currentAudioObj = null;
@@ -683,7 +688,7 @@
 
             const textToSpeak = slideTranscripts[currentSlide] || "No transcript available for this slide.";
 
-            if (elevenApiKey) {
+            if (elevenApiKey && elevenApiKey.length > 0) {
                 await speakElevenLabs(textToSpeak);
             } else {
                 speakWebSpeech(textToSpeak);
