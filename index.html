@@ -554,17 +554,18 @@
         let synth = window.speechSynthesis;
         let isSpeaking = false;
 
-        // SAFE RUNTIME CHECK: Prevents Uncaught TypeError when import.meta or import.meta.env is undefined on static hosts
+        // SAFE RUNTIME CHECK: Works on both local Vite dev and static GitHub Pages
         let elevenApiKey = '';
         let elevenVoiceId = 'pNInz6obpgDQGcFmaJgB';
 
         try {
+            // Safely check if import.meta and import.meta.env exist without throwing
             if (typeof import.meta !== 'undefined' && import.meta && import.meta.env) {
                 elevenApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || '';
                 elevenVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
             }
         } catch (e) {
-            console.warn("Static environment context detected, using WebSpeech fallback.");
+            console.warn("Static host detected. Falling back to browser WebSpeech.");
         }
 
         console.log("Loaded API Key Length:", elevenApiKey.length);
@@ -688,6 +689,7 @@
 
             const textToSpeak = slideTranscripts[currentSlide] || "No transcript available for this slide.";
 
+            // Only attempt ElevenLabs if an API key is present; otherwise use browser voice
             if (elevenApiKey && elevenApiKey.length > 0) {
                 await speakElevenLabs(textToSpeak);
             } else {
