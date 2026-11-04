@@ -3,1004 +3,589 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Exponential Time Hypothesis is False</title>
-    <!-- Tailwind CSS -->
+    <title>The Exponential Time Hypothesis: A Classmate Guide</title>
+
+    <!-- Tailwind (play CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- MathJax for rendering equations -->
+    <!-- MathJax: \( ... \) for inline math, \[ ... \] for display math -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']]
+            },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] }
+        };
+    </script>
     <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-                        mono: ['Fira Code', 'JetBrains Mono', 'Consolas', 'monospace'],
-                    },
-                    colors: {
-                        cud: {
-                            bg: '#0f172a',
-                            card: '#1e293b',
-                            border: '#334155',
-                            accent: '#3b82f6',
-                            gold: '#f59e0b',
-                            emerald: '#10b981'
-                        }
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Fira Code', 'Consolas', 'monospace']
                     }
                 }
             }
-        }
+        };
     </script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
 
-        .slide-content {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.25s ease-in-out;
-        }
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        code, pre, .mono { font-family: 'Fira Code', Consolas, monospace; }
 
-        .slide-content.active {
-            display: block;
-            opacity: 1;
-        }
+        .tab-btn { color: #94a3b8; }
+        .tab-btn:hover { color: #f8fafc; background: #1e293b; }
+        .tab-active { background: #2563eb; color: #ffffff; font-weight: 600; box-shadow: 0 1px 6px rgba(37, 99, 235, 0.4); }
 
-        /* Custom Audio Scrub Slider */
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-        }
-        input[type=range]:focus {
-            outline: none;
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            background: #334155;
-            border-radius: 3px;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            height: 14px;
-            width: 14px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
-            -webkit-appearance: none;
-            margin-top: -4px;
-            box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
-        }
+        .stage-card { opacity: 0.6; border-color: #334155; }
+        .stage-card:hover { opacity: 1; }
+        .stage-card.is-active { opacity: 1; border-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.35); }
 
-        pre, code {
-            font-family: 'Fira Code', monospace;
-        }
+        details > summary { list-style: none; cursor: pointer; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] .chev { transform: rotate(180deg); }
 
-        pre::-webkit-scrollbar {
-            height: 6px;
-            width: 6px;
-        }
-        pre::-webkit-scrollbar-track {
-            background: #090d16;
-        }
-        pre::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 3px;
-        }
-
-        @keyframes activePulse {
-            0%, 100% { border-color: rgba(59, 130, 246, 1); box-shadow: 0 0 12px rgba(59, 130, 246, 0.35); }
-            50% { border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 0 4px rgba(59, 130, 246, 0.1); }
-        }
-        .step-active {
-            animation: activePulse 2s infinite;
-        }
+        .mjx-scroll { overflow-x: auto; max-width: 100%; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-600 selection:text-white">
 
-    <!-- HEADER / NAVIGATION -->
-    <header class="bg-slate-900/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            
-            <!-- Breadcrumbs -->
-            <div class="flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2 mb-1.5">
-                <div class="flex items-center space-x-1.5 font-medium font-mono">
-                    <span class="hover:text-blue-400 cursor-pointer transition flex items-center gap-1">
-                        <i class="fa-solid fa-arrow-left text-[10px]"></i> Student tools
-                    </span>
-                    <span>·</span>
-                    <span class="hover:text-blue-400 cursor-pointer transition">Problem 100</span>
-                    <span>·</span>
-                    <span class="hover:text-blue-400 cursor-pointer transition">Advanced Complexity</span>
-                    <span>·</span>
-                    <span class="text-slate-200 font-semibold">Lecture 12</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="px-2 py-0.5 rounded bg-blue-950/80 text-blue-400 font-mono font-semibold border border-blue-800/60 text-[11px]">CLO-4</span>
-                    <span class="px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 font-mono font-semibold border border-amber-800/60 text-[11px]">R2 · 50 pts</span>
-                    <span class="px-2 py-0.5 rounded bg-purple-950/80 text-purple-300 font-mono font-semibold border border-purple-800/60 text-[11px]">L12</span>
-                </div>
-            </div>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
-            <!-- Main Slide Title & Audio Player Controls -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-1">
+    <!-- HEADER -->
+    <header class="bg-slate-900/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-                        <span>The Exponential Time Hypothesis is False</span>
-                        <span class="text-[11px] font-mono text-emerald-400 bg-emerald-950/80 border border-emerald-700/50 px-2.5 py-0.5 rounded-full font-semibold">Deterministic Solution Counting in Subexponential Time</span>
-                    </h1>
-                    <p class="text-xs text-slate-400 mt-0.5">
-                        Refuting ETH & SETH: Counting solutions to k-SAT in subexponential time using standard memory
-                    </p>
+                    <p class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Advanced Complexity · Lecture 12 · Classmate guide</p>
+                    <h1 class="text-lg sm:text-xl font-bold text-white">Can we count solutions faster than brute force? The claim against ETH</h1>
                 </div>
-                
-                <!-- Audio Player Toolbar with Slider -->
-                <div class="flex items-center gap-3 bg-slate-950/90 border border-slate-800 px-3 py-2 rounded-xl shrink-0 shadow-lg min-w-[280px] sm:min-w-[340px]">
-                    <button id="mainPlayBtn" class="w-8 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-full flex items-center justify-center text-xs transition shadow shrink-0">
-                        <i id="mainPlayIcon" class="fa-solid fa-play ml-0.5"></i>
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-[11px] px-2 py-1 rounded-full bg-amber-950 text-amber-300 border border-amber-700/60 font-semibold">
+                        <i class="fa-solid fa-flask mr-1"></i> Claimed result, under review
+                    </span>
+                    <button id="speakBtn" onclick="toggleSpeak()" class="text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-volume-high"></i> Read slide aloud
                     </button>
-
-                    <div class="flex-grow flex flex-col gap-1">
-                        <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
-                            <span id="audioStatusText" class="text-blue-400 font-semibold">Slide Audio</span>
-                            <div>
-                                <span id="currentTimeLabel">0:00</span> / <span id="durationLabel">0:00</span>
-                            </div>
-                        </div>
-                        <input type="range" id="audioScrubber" min="0" max="100" value="0" step="0.1" class="w-full">
-                    </div>
                 </div>
             </div>
 
-            <!-- Slide Navigation Tabs -->
-            <nav class="flex items-center gap-1.5 mt-3 overflow-x-auto pb-1 text-xs font-mono border-t border-slate-800/80 pt-2">
-                <button id="tab-1" data-slide="1" class="tab-btn px-3 py-1.5 rounded transition whitespace-nowrap bg-blue-600 text-white font-semibold shadow">
-                    [1] The Problem & Breakthrough
-                </button>
-                <button id="tab-2" data-slide="2" class="tab-btn px-3 py-1.5 rounded transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-                    [2] Step-by-Step Visual Pipeline
-                </button>
-                <button id="tab-3" data-slide="3" class="tab-btn px-3 py-1.5 rounded transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-                    [3] Common Pitfalls Explained
-                </button>
-                <button id="tab-4" data-slide="4" class="tab-btn px-3 py-1.5 rounded transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-                    [4] Exam & Defence Q&A
-                </button>
-                <button id="tab-5" data-slide="5" class="tab-btn px-3 py-1.5 rounded transition whitespace-nowrap text-slate-400 hover:text-white hover:bg-slate-800">
-                    [5] Summary & References
-                </button>
+            <nav class="flex gap-1.5 mt-3 overflow-x-auto pb-1 text-xs font-mono border-t border-slate-800 pt-3" role="tablist">
+                <button class="tab-btn px-3 py-1.5 rounded-md whitespace-nowrap transition" data-slide="1" onclick="showSlide(1)" role="tab">1 · Big picture</button>
+                <button class="tab-btn px-3 py-1.5 rounded-md whitespace-nowrap transition" data-slide="2" onclick="showSlide(2)" role="tab">2 · How it works</button>
+                <button class="tab-btn px-3 py-1.5 rounded-md whitespace-nowrap transition" data-slide="3" onclick="showSlide(3)" role="tab">3 · Common mistakes</button>
+                <button class="tab-btn px-3 py-1.5 rounded-md whitespace-nowrap transition" data-slide="4" onclick="showSlide(4)" role="tab">4 · Questions</button>
+                <button class="tab-btn px-3 py-1.5 rounded-md whitespace-nowrap transition" data-slide="5" onclick="showSlide(5)" role="tab">5 · Takeaways & sources</button>
             </nav>
         </div>
     </header>
 
-    <!-- MAIN SLIDE CANVAS -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex-grow w-full">
 
-        <!-- SLIDE 1: THEORY & CORE RESULT -->
-        <div id="slide-1" class="slide-content active space-y-6">
-            
-            <!-- Intuitive Combination Lock Analogy Card -->
-            <div class="bg-gradient-to-r from-blue-950/80 via-slate-800/90 to-slate-900 border border-blue-500/40 rounded-xl p-5 shadow-lg">
-                <div class="flex items-start gap-4">
-                    <div class="bg-blue-600/30 text-blue-400 p-3 rounded-lg text-2xl border border-blue-500/40 shrink-0">
-                        <i class="fa-solid fa-lock"></i>
+        <!-- ============ SLIDE 1: BIG PICTURE ============ -->
+        <section id="slide-1" class="slide space-y-6" data-slide="1">
+
+            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                <h2 class="text-base font-bold text-blue-400 mb-2"><i class="fa-solid fa-circle-info mr-1"></i> The one-paragraph version</h2>
+                <p class="text-sm text-slate-200 leading-relaxed">
+                    Many problems ask whether a set of yes/no switches can satisfy a list of rules. Counting how many settings work is harder still. For about 27 years, researchers have assumed that you cannot beat brute force by more than a fixed exponential rate. In October 2026, OpenAI posted a paper claiming an algorithm that counts all solutions of such problems in <em>subexponential</em> time, using only polynomial memory. If the proof holds, that assumption, the <strong>Exponential Time Hypothesis (ETH)</strong>, is false.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-5">
+                <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5 space-y-3">
+                    <h3 class="text-sm font-bold text-amber-300 font-mono">What ETH says</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        There is some fixed constant \(c > 0\) such that 3-SAT on \(n\) variables needs time \(2^{cn}\) in the worst case. In plain words: there is no way to beat brute force by a rate better than some fixed exponential.
+                    </p>
+                </div>
+                <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5 space-y-3">
+                    <h3 class="text-sm font-bold text-emerald-300 font-mono">What the paper claims</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Counting all satisfying assignments of any \(k\)-CNF formula can be done deterministically in time
+                        \[ 2^{\,O\left(\frac{n \log\log n}{\sqrt{\log n}}\right)} \]
+                        This exponent is \(o(n)\), so it beats \(2^{cn}\) for every \(c > 0\). That is what "subexponential" means here.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-950/70 to-slate-900 border border-blue-600/40 rounded-xl p-5 flex gap-4">
+                <div class="text-3xl text-blue-400 shrink-0"><i class="fa-solid fa-lock"></i></div>
+                <div class="space-y-2">
+                    <h3 class="text-sm font-bold text-white">Analogy: the combination lock</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        Picture a lock with \(n\) switches and \(m\) rules, such as "switch 1 OR switch 3 must be on, AND switch 2 must be off." Trying every setting with 100 switches means \(2^{100} \approx 1.3 \times 10^{30}\) checks. At a billion checks per second, that takes about 40 trillion years, roughly 3,000 times the age of the universe. ETH says that for some hard problems, no method can avoid this kind of blow-up. The paper says it can, at least for counting.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                <h3 class="text-sm font-bold text-purple-300 mb-3"><i class="fa-solid fa-book mr-1"></i> Glossary</h3>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                    <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
+                        <div class="font-mono text-blue-400 font-semibold">Variable \(x_i\)</div>
+                        <p class="text-slate-300 mt-1">A yes/no switch with value 0 or 1 (false or true).</p>
                     </div>
-                    <div class="space-y-2">
-                        <h2 class="text-base font-bold text-white flex items-center gap-2">
-                            <span>Intuitive Analogy: The Combination Lock</span>
-                            <span class="text-[10px] font-mono text-blue-300 bg-blue-900/60 border border-blue-700/50 px-2 py-0.5 rounded">Simple Concept</span>
-                        </h2>
-                        <p class="text-xs text-slate-200 leading-relaxed">
-                            Imagine a giant combination lock with <strong>n light switches</strong> (variables) and <strong>m rules</strong> (clauses) that must all be satisfied at once—for example: <em>"Switch 1 OR Switch 3 must be ON, AND Switch 2 must be OFF."</em>
-                        </p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs">
-                            <div class="p-2.5 bg-slate-950/80 rounded border border-slate-800">
-                                <strong class="text-amber-400 font-mono block mb-0.5">The Brute-Force Wall (Old Assumption)</strong>
-                                <p class="text-slate-300 text-[11px] leading-normal">
-                                    With 100 switches, testing all 2<sup>100</sup> combinations takes millions of years. Computer scientists assumed this exponential wall was impossible to bypass (ETH).
-                                </p>
-                            </div>
-                            <div class="p-2.5 bg-slate-950/80 rounded border border-slate-800">
-                                <strong class="text-emerald-400 font-mono block mb-0.5">The Subexponential Breakthrough (New Goal)</strong>
-                                <p class="text-slate-300 text-[11px] leading-normal">
-                                    This paper disproves ETH! It creates a shortcut algorithm that counts every valid combination in <strong>subexponential time</strong> without exhausting RAM.
-                                </p>
-                            </div>
-                        </div>
+                    <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
+                        <div class="font-mono text-blue-400 font-semibold">Literal</div>
+                        <p class="text-slate-300 mt-1">A variable or its negation: \(x\) or \(\neg x\).</p>
+                    </div>
+                    <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
+                        <div class="font-mono text-blue-400 font-semibold">Clause</div>
+                        <p class="text-slate-300 mt-1">An OR of literals, such as \(x_1 \lor \neg x_3 \lor x_7\). At least one must be true.</p>
+                    </div>
+                    <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
+                        <div class="font-mono text-blue-400 font-semibold">\(k\)-CNF</div>
+                        <p class="text-slate-300 mt-1">An AND of clauses, each with at most \(k\) literals. Every clause must be satisfied.</p>
+                    </div>
+                    <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
+                        <div class="font-mono text-blue-400 font-semibold">3-SAT</div>
+                        <p class="text-slate-300 mt-1">Deciding whether a 3-CNF formula has any satisfying assignment.</p>
+                    </div>
+                    <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
+                        <div class="font-mono text-blue-400 font-semibold">#F (counting)</div>
+                        <p class="text-slate-300 mt-1">The number of assignments that satisfy the formula. Counting is harder than deciding.</p>
+                    </div>
+                    <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
+                        <div class="font-mono text-blue-400 font-semibold">Subexponential \(2^{o(n)}\)</div>
+                        <p class="text-slate-300 mt-1">The exponent grows more slowly than \(n\), so the bound beats \(2^{cn}\) for every fixed \(c > 0\).</p>
+                    </div>
+                    <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
+                        <div class="font-mono text-blue-400 font-semibold">Polynomial space</div>
+                        <p class="text-slate-300 mt-1">Memory grows only like a polynomial in \(n\) and \(m\), so the computer does not run out of RAM.</p>
+                    </div>
+                    <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
+                        <div class="font-mono text-blue-400 font-semibold">Deterministic</div>
+                        <p class="text-slate-300 mt-1">The algorithm uses no randomness, so every run gives the same answer.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Plain English Dictionary of Terms -->
-            <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 shadow-md">
-                <h3 class="text-sm font-bold text-amber-400 font-mono flex items-center gap-2 border-b border-slate-700/80 pb-2 mb-3">
-                    <i class="fa-solid fa-book-open text-amber-400"></i> Plain English Dictionary of Terms
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-                    <div class="p-2.5 bg-slate-950/80 rounded border border-slate-800">
-                        <span class="font-mono text-blue-400 font-bold">n (Variables)</span>
-                        <p class="text-slate-300 text-[11px] mt-0.5">The total number of yes/no true/false switches in the puzzle.</p>
-                    </div>
-                    <div class="p-2.5 bg-slate-950/80 rounded border border-slate-800">
-                        <span class="font-mono text-blue-400 font-bold">m (Clauses)</span>
-                        <p class="text-slate-300 text-[11px] mt-0.5">The rules or constraints that must all be satisfied at the same time.</p>
-                    </div>
-                    <div class="p-2.5 bg-slate-950/80 rounded border border-slate-800">
-                        <span class="font-mono text-blue-400 font-bold">Exponential Time (2ⁿ)</span>
-                        <p class="text-slate-300 text-[11px] mt-0.5">Brute-force searching through all 2<sup>n</sup> possible combinations. Extremely slow!</p>
-                    </div>
-                    <div class="p-2.5 bg-slate-950/80 rounded border border-slate-800">
-                        <span class="font-mono text-blue-400 font-bold">Subexponential Time (2<sup>o(n)</sup>)</span>
-                        <p class="text-slate-300 text-[11px] mt-0.5">A speedup that grows much slower than any true exponential rate as n gets large.</p>
-                    </div>
-                    <div class="p-2.5 bg-slate-950/80 rounded border border-slate-800">
-                        <span class="font-mono text-blue-400 font-bold">#k-SAT (Solution Counting)</span>
-                        <p class="text-slate-300 text-[11px] mt-0.5">Not just checking if a solution exists, but counting the <em>exact number</em> of solutions.</p>
-                    </div>
-                    <div class="p-2.5 bg-slate-950/80 rounded border border-slate-800">
-                        <span class="font-mono text-blue-400 font-bold">Polynomial Space</span>
-                        <p class="text-slate-300 text-[11px] mt-0.5">Memory storage scales normally (like n²), so your computer never crashes from low RAM.</p>
-                    </div>
-                </div>
+            <div class="bg-amber-950/40 border border-amber-700/60 rounded-xl p-4 text-sm text-amber-100 flex gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5"></i>
+                <p>
+                    <strong>Status:</strong> This is a claim, not an accepted result. OpenAI reports that the proof was checked in Lean, a computer proof assistant. Independent experts were still reviewing it when this page was written. Anthropic has posted a related paper. Say "OpenAI claims" when you present it.
+                </p>
             </div>
+        </section>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 space-y-4 shadow-md">
-                    <h3 class="text-sm font-bold text-blue-400 font-mono flex items-center gap-2 border-b border-slate-700/80 pb-2">
-                        <i class="fa-solid fa-scale-balanced"></i> Old Assumption vs. New Reality
-                    </h3>
+        <!-- ============ SLIDE 2: HOW IT WORKS ============ -->
+        <section id="slide-2" class="slide space-y-6 hidden" data-slide="2">
 
-                    <div class="space-y-3 text-xs">
-                        <div class="p-3 bg-slate-950/80 rounded-lg border border-slate-800">
-                            <h4 class="font-bold text-amber-300 font-mono mb-1">Old Assumption (ETH)</h4>
-                            <p class="text-slate-300 leading-relaxed">
-                                "There is a hard wall. No algorithm will ever solve 3-SAT faster than standard exponential time (like 2<sup>0.001n</sup>)."
-                            </p>
-                        </div>
-
-                        <div class="p-3 bg-blue-950/40 rounded-lg border border-blue-800/60">
-                            <h4 class="font-bold text-emerald-400 font-mono mb-1">New Reality (Disproven!)</h4>
-                            <p class="text-slate-200">
-                                Solution counting can be solved in subexponential time:
-                            </p>
-                            <div class="my-2 p-2 bg-slate-900 rounded font-mono text-blue-300 text-center text-xs border border-slate-800">
-                                Time = 2<sup> [ n · (log log n)² / √log n ] </sup>
-                            </div>
-                            <p class="text-[11px] text-slate-400 mt-1">
-                                Notice how the exponent has √log(n) in the denominator. As n gets larger, this exponent shrinks relative to n, making it strictly subexponential!
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 shadow-md flex flex-col">
-                    <h3 class="text-sm font-bold text-emerald-400 font-mono flex items-center gap-2 border-b border-slate-700/80 pb-2 mb-3">
-                        <i class="fa-solid fa-code"></i> Simplified Algorithm Blueprint
-                    </h3>
-                    <pre class="bg-slate-950 text-slate-200 p-4 rounded-lg text-xs font-mono overflow-x-auto border border-slate-800 flex-grow leading-relaxed"><code><span class="text-slate-500">// Goal: Count total valid solutions to a logic formula</span>
-<span class="text-purple-400">algorithm</span> <span class="text-blue-400">FastSolutionCount</span>(Formula):
-
-    <span class="text-slate-500">// 1. Simplify complex rules into simple parity equations</span>
-    SimpleFormula = CompressRules(Formula)
-
-    <span class="text-slate-500">// 2. Split variables into small separate groups</span>
-    // Connect groups using only a tiny "summary budget"
-    Groups = SplitVariablesIntoGroups(Count = √log n)
-
-    <span class="text-slate-500">// 3. Create a shortcut mathematical curve H(T)</span>
-    // At sample points T = 1, 2, ... Q, groups act independently
-    Curve = BuildShortcutCurve(Groups)
-
-    <span class="text-slate-500">// 4. Calculate local information at sample points</span>
-    for Point in [1 .. Q]:
-        Data[Point] = ComputeLocalGroupData(Curve, Point)
-
-    <span class="text-slate-500">// 5. Project data back to T = 0 to get the exact answer</span>
-    return ReconstructExactAnswer(Data)</code></pre>
-                </div>
-            </div>
-        </div>
-
-        <!-- SLIDE 2: INTERACTIVE PIPELINE DEMO -->
-        <div id="slide-2" class="slide-content space-y-6">
-            <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 shadow-md">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/80 pb-4 mb-4">
+            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                     <div>
-                        <h2 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-play-circle text-blue-400"></i> How the Algorithm Works (Visual Pipeline)
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">
-                            Step through the 4 stages below to see how the paper bypasses brute-force exponential testing.
-                        </p>
+                        <h2 class="text-base font-bold text-white">How the algorithm works, in four steps</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Click a step, or use Prev and Next. Each step builds on the one before.</p>
                     </div>
-
-                    <div class="flex items-center gap-2 shrink-0">
-                        <button id="prevDemoBtn" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded text-xs font-semibold transition border border-slate-600">
-                            <i class="fa-solid fa-chevron-left"></i> Prev
-                        </button>
-                        <span id="stepCounter" class="text-xs font-mono font-bold px-2 py-1 bg-slate-950 rounded border border-slate-800 text-blue-400">
-                            Step 1 / 4
-                        </span>
-                        <button id="nextDemoBtn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-semibold transition">
-                            Next <i class="fa-solid fa-chevron-right"></i>
-                        </button>
-                        <button id="autoPlayBtn" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded text-xs font-semibold transition flex items-center gap-1">
-                            <i class="fa-solid fa-play"></i> Auto
-                        </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="prevStage()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-xs font-semibold"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+                        <span id="stageCounter" class="text-xs font-mono px-2 py-1 bg-slate-950 border border-slate-800 rounded text-blue-400">Stage 1 / 4</span>
+                        <button onclick="nextStage()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-xs font-semibold">Next <i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6 font-mono text-xs">
-                    <div id="pipeline-card-1" data-step="1" class="pipeline-card cursor-pointer p-3 rounded-lg border border-blue-500 bg-blue-950/40 step-active transition text-center">
-                        <div class="font-bold text-blue-400 mb-0.5">Stage 1</div>
-                        <div class="text-white font-semibold text-[11px]">Rule Compression</div>
-                    </div>
-                    <div id="pipeline-card-2" data-step="2" class="pipeline-card cursor-pointer p-3 rounded-lg border border-slate-700 bg-slate-950/60 transition text-center opacity-70">
-                        <div class="font-bold text-slate-400 mb-0.5">Stage 2</div>
-                        <div class="text-white font-semibold text-[11px]">Group Separation</div>
-                    </div>
-                    <div id="pipeline-card-3" data-step="3" class="pipeline-card cursor-pointer p-3 rounded-lg border border-slate-700 bg-slate-950/60 transition text-center opacity-70">
-                        <div class="font-bold text-slate-400 mb-0.5">Stage 3</div>
-                        <div class="text-white font-semibold text-[11px]">Sample Point Testing</div>
-                    </div>
-                    <div id="pipeline-card-4" data-step="4" class="pipeline-card cursor-pointer p-3 rounded-lg border border-slate-700 bg-slate-950/60 transition text-center opacity-70">
-                        <div class="font-bold text-slate-400 mb-0.5">Stage 4</div>
-                        <div class="text-white font-semibold text-[11px]">Project Back to Answer</div>
-                    </div>
+        
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 text-xs">
+                    <button class="stage-card text-left p-3 rounded-lg border bg-slate-950/60 transition" data-stage="0" onclick="renderStage(0)">
+                        <div class="font-mono font-bold text-blue-400">Stage 1</div>
+                        <div class="text-white font-semibold mt-0.5">Rules become checkers</div>
+                    </button>
+                    <button class="stage-card text-left p-3 rounded-lg border bg-slate-950/60 transition" data-stage="1" onclick="renderStage(1)">
+                        <div class="font-mono font-bold text-blue-400">Stage 2</div>
+                        <div class="text-white font-semibold mt-0.5">Split into teams</div>
+                    </button>
+                    <button class="stage-card text-left p-3 rounded-lg border bg-slate-950/60 transition" data-stage="2" onclick="renderStage(2)">
+                        <div class="font-mono font-bold text-blue-400">Stage 3</div>
+                        <div class="text-white font-semibold mt-0.5">Turn a dial to cut the links</div>
+                    </button>
+                    <button class="stage-card text-left p-3 rounded-lg border bg-slate-950/60 transition" data-stage="3" onclick="renderStage(3)">
+                        <div class="font-mono font-bold text-blue-400">Stage 4</div>
+                        <div class="text-white font-semibold mt-0.5">Connect the dots</div>
+                    </button>
                 </div>
+        
+                <div id="stageBody" class="bg-slate-950 border border-slate-800 rounded-xl p-5 min-h-[300px]"></div>
+            </div>
+        
+            <div class="bg-emerald-950/40 border border-emerald-700/50 rounded-xl p-5 text-sm text-emerald-100">
+                <strong class="text-emerald-300">The whole idea in one sentence:</strong>
+                Split the problem into small teams, use a dial to make the teams stop depending on each other, and use a few measurements to recover the exact answer.
+            </div>
+        
+            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                <h3 class="text-sm font-bold text-emerald-300 mb-3">Why not just a faster brute force?</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-slate-400 font-mono border-b border-slate-700">
+                            <tr>
+                                <th class="py-2 pr-4">Approach</th>
+                                <th class="py-2">How the time grows</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-200">
+                            <tr class="border-b border-slate-800">
+                                <td class="py-2 pr-4">Brute force: try every setting</td>
+                                <td class="py-2">Doubles with every extra switch</td>
+                            </tr>
+                            <tr class="border-b border-slate-800">
+                                <td class="py-2 pr-4">The old belief (ETH)</td>
+                                <td class="py-2">Grows at least as fast as some fixed exponential</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 pr-4">The new claim</td>
+                                <td class="py-2">Grows much slower than any fixed exponential</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-slate-400 mt-3">
+                    The paper gives two versions of this bound. The one shown in its main theorem is the sharper one. The weaker one is the one the reported Lean check covers. Always say which one you mean.
+                </p>
+            </div>
+        </section>
 
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 min-h-[260px] flex flex-col justify-between relative">
-                    <div id="demo-stage-view" class="space-y-4"></div>
+        <!-- ============ SLIDE 3: COMMON MISTAKES ============ -->
+        <section id="slide-3" class="slide space-y-6 hidden" data-slide="3">
 
-                    <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400 font-mono">
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-microchip text-blue-400"></i> Current Pipeline Status: <strong id="demo-state-label" class="text-slate-200">Preprocessing Formula</strong></span>
-                        <span class="text-emerald-400" id="demo-math-summary">Subexponential Execution Guaranteed</span>
-                    </div>
+            <div class="grid md:grid-cols-3 gap-5">
+                <div class="bg-slate-800/60 border border-amber-600/40 rounded-xl p-5 space-y-3">
+                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700/60">Mistake 1</span>
+                    <h3 class="font-bold text-white text-sm">"So P = NP?"</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        No. The bound is for counting \(k\)-CNF formulas. Connecting other NP problems to these formulas uses polynomial-time reductions, and those can enlarge the instance. A bound of \(2^{o(\text{size})}\) on the enlarged instance does not give \(2^{o(n)}\) on the original problem. P versus NP is still open.
+                    </p>
+                </div>
+                <div class="bg-slate-800/60 border border-amber-600/40 rounded-xl p-5 space-y-3">
+                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700/60">Mistake 2</span>
+                    <h3 class="font-bold text-white text-sm">"Does the memory blow up?"</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        No. The algorithm processes groups one at a time, sequentially, and reuses space. The claimed memory use is polynomial in \(n\) and \(m\), not exponential.
+                    </p>
+                </div>
+                <div class="bg-slate-800/60 border border-amber-600/40 rounded-xl p-5 space-y-3">
+                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700/60">Mistake 3</span>
+                    <h3 class="font-bold text-white text-sm">"Does it only check if one solution exists?"</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        No. It counts every satisfying assignment. A count above zero also answers the yes/no question, so counting is the harder task.
+                    </p>
                 </div>
             </div>
-        </div>
 
-        <!-- SLIDE 3: PITFALLS & MISCONCEPTIONS -->
-        <div id="slide-3" class="slide-content space-y-6">
-            <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 shadow-md">
-                <h2 class="text-base font-bold text-amber-400 flex items-center gap-2 border-b border-slate-700/80 pb-3 mb-4 font-mono">
-                    <i class="fa-solid fa-triangle-exclamation"></i> 3 Common Misconceptions (Exam Pitfalls)
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="bg-slate-950/80 border border-amber-500/30 rounded-xl p-4 flex flex-col justify-between space-y-3">
-                        <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 text-[10px] font-mono font-bold border border-amber-800/60">Misconception #1</span>
-                                <i class="fa-solid fa-circle-xmark text-amber-500"></i>
-                            </div>
-                            <h3 class="font-bold text-white text-xs">"Does this prove P = NP?"</h3>
-                            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                                <strong>NO!</strong> Standard NP reductions act like photocopying a puzzle—they blow up the puzzle size. Converting a subexponential algorithm through an NP reduction turns it right back into exponential time for other NP problems.
-                            </p>
-                        </div>
-                        <div class="p-2.5 bg-slate-900 rounded text-[11px] text-slate-400 border border-slate-800 font-mono">
-                            <strong>Takeaway:</strong> NP reductions preserve polynomial time, NOT subexponential exponents.
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/80 border border-amber-500/30 rounded-xl p-4 flex flex-col justify-between space-y-3">
-                        <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 text-[10px] font-mono font-bold border border-amber-800/60">Misconception #2</span>
-                                <i class="fa-solid fa-database text-amber-500"></i>
-                            </div>
-                            <h3 class="font-bold text-white text-xs">"Does memory run out during calculations?"</h3>
-                            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                                <strong>NO!</strong> The algorithm evaluates groups sequentially one by one and discards old intermediate data. Memory usage stays strictly within standard <strong>Polynomial Memory Space</strong>.
-                            </p>
-                        </div>
-                        <div class="p-2.5 bg-slate-900 rounded text-[11px] text-slate-400 border border-slate-800 font-mono">
-                            <strong>Takeaway:</strong> Memory stays small and manageable (Polynomial Space).
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/80 border border-amber-500/30 rounded-xl p-4 flex flex-col justify-between space-y-3">
-                        <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 text-[10px] font-mono font-bold border border-amber-800/60">Misconception #3</span>
-                                <i class="fa-solid fa-list-check text-amber-500"></i>
-                            </div>
-                            <h3 class="font-bold text-white text-xs">"Does it only check if 1 solution exists?"</h3>
-                            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-                                <strong>NO!</strong> It solves the much harder problem of <strong>counting every single valid solution</strong> (#k-SAT). Knowing the total count automatically answers whether at least one solution exists.
-                            </p>
-                        </div>
-                        <div class="p-2.5 bg-slate-900 rounded text-[11px] text-slate-400 border border-slate-800 font-mono">
-                            <strong>Takeaway:</strong> It computes exact counts, disproving counting ETH variants too.
-                        </div>
-                    </div>
+            <div class="grid md:grid-cols-2 gap-5">
+                <div class="bg-slate-800/60 border border-emerald-700/40 rounded-xl p-5">
+                    <h3 class="text-sm font-bold text-emerald-300 mb-3"><i class="fa-solid fa-check mr-1"></i> What is claimed</h3>
+                    <ul class="space-y-2 text-sm text-slate-200 list-disc pl-5">
+                        <li>Exact counting of satisfying assignments for every fixed \(k \ge 2\).</li>
+                        <li>Deterministic, with no randomness.</li>
+                        <li>Subexponential time, \(2^{o(n)}\).</li>
+                        <li>Polynomial space.</li>
+                        <li>Consequence: ETH, SETH, Gap-ETH, and NSETH are all refuted, per the paper.</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-800/60 border border-rose-700/40 rounded-xl p-5">
+                    <h3 class="text-sm font-bold text-rose-300 mb-3"><i class="fa-solid fa-xmark mr-1"></i> What is not claimed</h3>
+                    <ul class="space-y-2 text-sm text-slate-200 list-disc pl-5">
+                        <li>That P = NP, or that every NP problem is subexponential.</li>
+                        <li>That the algorithm is fast in practice. Subexponential can still be astronomically slow for realistic \(n\).</li>
+                        <li>That the result has been independently verified. Expert review was still in progress.</li>
+                    </ul>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- SLIDE 4: Q&A DEFENCE NOTES -->
-        <div id="slide-4" class="slide-content space-y-6">
-            <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 shadow-md">
-                <h2 class="text-base font-bold text-blue-400 flex items-center gap-2 border-b border-slate-700/80 pb-3 mb-4 font-mono">
-                    <i class="fa-solid fa-comments"></i> Questions Your Professor Might Ask (With Answers)
-                </h2>
-
-                <div class="space-y-3">
-                    <div class="bg-slate-950/80 border border-slate-800 rounded-lg overflow-hidden">
-                        <button data-qa="qa-1" class="accordion-btn w-full px-4 py-3 text-left font-semibold text-xs text-white flex items-center justify-between hover:bg-slate-900 transition">
-                            <span class="flex items-center gap-2 font-mono">
-                                <span class="text-blue-400 font-bold">Q1:</span>
-                                Why construct a shortcut curve H(T) instead of testing all variables directly?
-                            </span>
-                            <i id="qa-1-icon" class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
-                        </button>
-                        <div id="qa-1" class="hidden px-4 pb-4 pt-1 text-xs text-slate-300 border-t border-slate-800/80 leading-relaxed bg-slate-950/40">
-                            Testing variables directly requires 2<sup>n</sup> operations because all variables overlap. The shortcut curve H(T) deforms the inputs so at sample points T = 1, 2, ... Q, variables split into independent group buckets that can be calculated separately in parallel!
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/80 border border-slate-800 rounded-lg overflow-hidden">
-                        <button data-qa="qa-2" class="accordion-btn w-full px-4 py-3 text-left font-semibold text-xs text-white flex items-center justify-between hover:bg-slate-900 transition">
-                            <span class="flex items-center gap-2 font-mono">
-                                <span class="text-blue-400 font-bold">Q2:</span>
-                                How do we ensure the overall calculation stays subexponential?
-                            </span>
-                            <i id="qa-2-icon" class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
-                        </button>
-                        <div id="qa-2" class="hidden px-4 pb-4 pt-1 text-xs text-slate-300 border-t border-slate-800/80 leading-relaxed bg-slate-950/40 space-y-2">
-                            <p>By balancing three core costs:</p>
-                            <ul class="list-disc pl-5 space-y-1 text-slate-300 font-mono text-[11px]">
-                                <li>The cost of collecting sample data at sample points</li>
-                                <li>The cost of checking summary budgets between groups</li>
-                                <li>The cost of searching inside each tiny local group</li>
-                            </ul>
-                            <p>By setting group size to roughly √log(n), all three costs shrink together, guaranteeing a subexponential total running time!</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/80 border border-slate-800 rounded-lg overflow-hidden">
-                        <button data-qa="qa-3" class="accordion-btn w-full px-4 py-3 text-left font-semibold text-xs text-white flex items-center justify-between hover:bg-slate-900 transition">
-                            <span class="flex items-center gap-2 font-mono">
-                                <span class="text-blue-400 font-bold">Q3:</span>
-                                What is the role of parity checks in Stage 1?
-                            </span>
-                            <i id="qa-3-icon" class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
-                        </button>
-                        <div id="qa-3" class="hidden px-4 pb-4 pt-1 text-xs text-slate-300 border-t border-slate-800/80 leading-relaxed bg-slate-950/40">
-                            Raw logic clauses generate complex, high-degree mathematical expressions. Parity checks convert complex OR statements into simple binary XOR equations, keeping the degree low and easy to sample.
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/80 border border-slate-800 rounded-lg overflow-hidden">
-                        <button data-qa="qa-4" class="accordion-btn w-full px-4 py-3 text-left font-semibold text-xs text-white flex items-center justify-between hover:bg-slate-900 transition">
-                            <span class="flex items-center gap-2 font-mono">
-                                <span class="text-blue-400 font-bold">Q4:</span>
-                                What happens to other computer science hypotheses as a result?
-                            </span>
-                            <i id="qa-4-icon" class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
-                        </button>
-                        <div id="qa-4" class="hidden px-4 pb-4 pt-1 text-xs text-slate-300 border-t border-slate-800/80 leading-relaxed bg-slate-950/40">
-                            Hypotheses built on top of ETH (like SETH, Gap-ETH, and NSETH) also fall. While many algorithms in practice still take long to run, we now know that exact exponential lower bounds are not fundamental limits for 3-SAT.
-                        </div>
-                    </div>
-                </div>
+        <!-- ============ SLIDE 4: QUESTIONS ============ -->
+        <section id="slide-4" class="slide space-y-4 hidden" data-slide="4">
+            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                <h2 class="text-base font-bold text-blue-400 mb-1"><i class="fa-solid fa-comments mr-1"></i> Questions you might be asked</h2>
+                <p class="text-xs text-slate-400">Open each one to see a short answer. Try answering before you open it.</p>
             </div>
-        </div>
 
-        <!-- SLIDE 5: READING & BIBLIOGRAPHY -->
-        <div id="slide-5" class="slide-content space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 shadow-md flex flex-col justify-between">
-                    <div>
-                        <h2 class="text-base font-bold text-emerald-400 flex items-center gap-2 border-b border-slate-700/80 pb-3 mb-3 font-mono">
-                            <i class="fa-solid fa-flag-checkered"></i> Core Takeaways for Class
-                        </h2>
-                        <ul class="space-y-2.5 text-xs text-slate-300 leading-relaxed">
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
-                                <span><strong>ETH is Disproven:</strong> Exact solution counting for k-SAT can be done in subexponential time.</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
-                                <span><strong>Memory Efficient:</strong> Uses standard polynomial space, avoiding memory crashes.</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
-                                <span><strong>Main Mechanics:</strong> Rule compression + Group separation via linear summaries + Polynomial sampling.</span>
-                            </li>
-                        </ul>
-                    </div>
+            <details class="bg-slate-950/80 border border-slate-800 rounded-lg p-4 group">
+                <summary class="flex justify-between items-center font-semibold text-sm text-white">
+                    <span><span class="text-blue-400 font-mono mr-2">Q1</span>Why introduce a parameter \(T\) instead of testing the variables directly?</span>
+                    <i class="chev fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+                    Testing directly means handling all \(n\) variables at once, which costs about \(2^n\), because the clauses link the variables together. The parameter \(T\) lets us evaluate a related problem at sample points \(T = 1, \dots, Q\), where the groups separate. Since the answer is determined by a polynomial of bounded degree, the values at those sample points are enough to recover the true count at \(T = 0\).
+                </p>
+            </details>
 
-                    <div class="mt-4 p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px] text-slate-400 font-mono">
-                        <span class="text-blue-400 font-semibold">Course Module:</span> Advanced Computational Complexity (CLO-4) · Problem 100
-                    </div>
+            <details class="bg-slate-950/80 border border-slate-800 rounded-lg p-4 group">
+                <summary class="flex justify-between items-center font-semibold text-sm text-white">
+                    <span><span class="text-blue-400 font-mono mr-2">Q2</span>How many groups are there, and how big is each?</span>
+                    <i class="chev fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+                    The number of groups is \(r \approx \sqrt{\log n}\). Each group has at most \(2n/r\) variables, which is roughly \(n/\sqrt{\log n}\). Careful: \(\sqrt{\log n}\) is the number of groups, not the size of each group. Enumerating one group costs about \(2^{2n/r}\), and that small exponent is what makes the total subexponential.
+                </p>
+            </details>
+
+            <details class="bg-slate-950/80 border border-slate-800 rounded-lg p-4 group">
+                <summary class="flex justify-between items-center font-semibold text-sm text-white">
+                    <span><span class="text-blue-400 font-mono mr-2">Q3</span>Are the groups processed in parallel?</span>
+                    <i class="chev fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+                    No. The groups and sample points are processed one at a time, sequentially. This is why the memory stays polynomial. Processing in parallel would not be what the paper describes.
+                </p>
+            </details>
+
+            <details class="bg-slate-950/80 border border-slate-800 rounded-lg p-4 group">
+                <summary class="flex justify-between items-center font-semibold text-sm text-white">
+                    <span><span class="text-blue-400 font-mono mr-2">Q4</span>What is the role of XOR and parity?</span>
+                    <i class="chev fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+                    The paper writes a negated literal using XOR: a literal is \(x \oplus b\), where \(b\) is a bit. That is just notation for negation. The core counting does not turn OR into XOR. Each clause becomes a polynomial, \(\Phi_e = 1 - \prod(1 - L)\), which equals 1 when the clause is satisfied. Parity reasoning appears in the technical sections, not in the main idea.
+                </p>
+            </details>
+
+            <details class="bg-slate-950/80 border border-slate-800 rounded-lg p-4 group">
+                <summary class="flex justify-between items-center font-semibold text-sm text-white">
+                    <span><span class="text-blue-400 font-mono mr-2">Q5</span>Does this kill other hypotheses too?</span>
+                    <i class="chev fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+                    The paper says its theorem refutes ETH, SETH, Gap-ETH, and NSETH. Results that assume these hypotheses lose their basis if the proof holds. Anthropic reports that its literature search found more than 800 papers with results that depend on ETH or a stronger assumption. Treat that count as their claim.
+                </p>
+            </details>
+
+            <details class="bg-slate-950/80 border border-slate-800 rounded-lg p-4 group">
+                <summary class="flex justify-between items-center font-semibold text-sm text-white">
+                    <span><span class="text-blue-400 font-mono mr-2">Q6</span>Has this been verified?</span>
+                    <i class="chev fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+                    OpenAI reports a Lean verification and an expert-led review. At the time of writing, independent researchers, including members of the group that proposed ETH, were only starting to examine it. Reports also say the Lean file covers a slightly weaker bound than the headline. So the honest answer is: claimed, computer-checked according to the lab, and under expert review.
+                </p>
+            </details>
+
+            <details class="bg-slate-950/80 border border-slate-800 rounded-lg p-4 group">
+                <summary class="flex justify-between items-center font-semibold text-sm text-white">
+                    <span><span class="text-blue-400 font-mono mr-2">Q7</span>Is the algorithm practical?</span>
+                    <i class="chev fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+                </summary>
+                <p class="mt-3 text-sm text-slate-300 leading-relaxed">
+                    Not necessarily. Subexponential means the exponent is \(o(n)\), but for realistic \(n\), the running time can still be enormous. The paper does not claim the algorithm is fast in practice.
+                </p>
+            </details>
+        </section>
+
+        <!-- ============ SLIDE 5: TAKEAWAYS & SOURCES ============ -->
+        <section id="slide-5" class="slide space-y-6 hidden" data-slide="5">
+
+            <div class="grid md:grid-cols-2 gap-5">
+                <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                    <h2 class="text-sm font-bold text-emerald-300 mb-3"><i class="fa-solid fa-flag-checkered mr-1"></i> Key takeaways</h2>
+                    <ol class="space-y-3 text-sm text-slate-200 list-decimal pl-5">
+                        <li><strong>The claim:</strong> exact counting of \(k\)-CNF solutions can be done in \(2^{o(n)}\) time, deterministically.</li>
+                        <li><strong>The idea:</strong> write counting as a sum of products of clause polynomials, split variables into about \(\sqrt{\log n}\) groups, and use sample points plus interpolation to handle the links between groups.</li>
+                        <li><strong>The memory:</strong> polynomial, because groups are handled one at a time.</li>
+                        <li><strong>The limits:</strong> P versus NP is still open, the algorithm is not claimed to be practical, and the result is not yet independently verified.</li>
+                    </ol>
                 </div>
 
-                <div class="bg-slate-800/60 border border-slate-700/70 rounded-xl p-5 shadow-md space-y-3">
-                    <h2 class="text-base font-bold text-purple-400 flex items-center gap-2 border-b border-slate-700/80 pb-3 font-mono">
-                        <i class="fa-solid fa-book-open"></i> Course References
-                    </h2>
-
+                <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                    <h2 class="text-sm font-bold text-purple-300 mb-3"><i class="fa-solid fa-book-open mr-1"></i> Sources to cite</h2>
                     <div class="space-y-2 text-xs">
-                        <div class="p-2.5 bg-slate-950 rounded border border-slate-800">
-                            <div class="font-bold text-white font-mono">Primary Paper</div>
-                            <div class="text-slate-400 text-[11px] mt-0.5">"The Exponential Time Hypothesis is False" (Subexponential #k-SAT Algorithm)</div>
+                        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
+                            <div class="font-semibold text-white">OpenAI, "The Exponential Time Hypothesis Is False"</div>
+                            <div class="text-slate-400 mt-0.5">Manuscript dated 17 October 2026, revised 25 October 2026. The primary source for this lecture.</div>
                         </div>
-                        <div class="p-2.5 bg-slate-950 rounded border border-slate-800">
-                            <div class="font-bold text-white font-mono">Impagliazzo & Paturi (1999)</div>
-                            <div class="text-slate-400 text-[11px] mt-0.5">Original papers that proposed the Exponential Time Hypothesis.</div>
+                        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
+                            <div class="font-semibold text-white">Anthropic, "A \(2^{o(n)}\) Time Algorithm for 3-SAT"</div>
+                            <div class="text-slate-400 mt-0.5">Posted 26 October 2026. A related, independent-looking result from the same week.</div>
                         </div>
-                        <div class="p-2.5 bg-slate-950 rounded border border-slate-800">
-                            <div class="font-bold text-white font-mono">Sipser Text (BCS 402)</div>
-                            <div class="text-slate-400 text-[11px] mt-0.5">Chapter on NP-Completeness, Space Complexity, and Counting Problems (#P).</div>
+                        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
+                            <div class="font-semibold text-white">Impagliazzo & Paturi, "On the Complexity of k-SAT"</div>
+                            <div class="text-slate-400 mt-0.5">Where ETH was first proposed (1999 conference version; JCSS 2001).</div>
+                        </div>
+                        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
+                            <div class="font-semibold text-white">Impagliazzo, Paturi & Zane (2001)</div>
+                            <div class="text-slate-400 mt-0.5">The paper that formalized ETH and SETH. Also in JCSS.</div>
+                        </div>
+                        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
+                            <div class="font-semibold text-white">Sipser, <em>Introduction to the Theory of Computation</em></div>
+                            <div class="text-slate-400 mt-0.5">Background on NP-completeness, space complexity, and counting problems.</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
+            <div class="bg-amber-950/40 border border-amber-700/60 rounded-xl p-4 text-sm text-amber-100">
+                <strong>Before you present:</strong> check the current verification status of the OpenAI and Anthropic papers, since this area is changing quickly. Use the wording "claims" throughout.
+            </div>
+        </section>
     </main>
 
     <!-- FOOTER -->
     <footer class="bg-slate-950 border-t border-slate-800 py-3 text-center text-xs text-slate-500 font-mono">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div>
-                Problem 100 · BCS 402 · Dr. Arash Kermani · CUD
-            </div>
-            <div class="flex items-center gap-3">
-                <span>Slide <strong id="footerSlideNum" class="text-slate-300">1</strong> of 5</span>
-                <span>·</span>
-                <span class="text-blue-400">Canadian University Dubai</span>
-            </div>
-        </div>
+        Advanced Complexity · Lecture 12 · Slide <span id="slideNum">1</span> of 5
     </footer>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // State variables
-        let currentSlide = 1;
-        let currentDemoStep = 1;
-        let autoPlayTimer = null;
-        let synth = window.speechSynthesis;
-        let isSpeaking = false;
+        // ---------- Slide navigation ----------
+        let current = 1;
 
-        // ELEVENLABS CONFIGURATION
-        const elevenApiKey = 'sk_a520bd16c1371b80684c3da7d0fabd95fa1cc2e6aa06060e';
-        const elevenVoiceId = 'pNInz6obpgDQGcFmaJgB';
-
-        let currentAudioObj = null;
-        let currentUtterance = null;
-        let isUserScrubbing = false;
-
-        const slideTranscripts = {
-            1: "Today we are looking at a major breakthrough in computer science: proving that the Exponential Time Hypothesis, or E T H, is false. Think of a 3 SAT logic problem like a giant combination lock with n light switches and m rules that must all be satisfied at once, such as Switch 1 or Switch 3 must be ON, and Switch 2 must be OFF. For over twenty years, computer scientists believed that testing combinations strictly required testing every single combination one by one in exponential time, taking millions of years. This paper disproves that belief! It creates a smart algorithm that counts every valid combination in subexponential time using standard computer memory. It achieves this by compressing rules into binary XOR equations, grouping switches into small independent buckets, evaluating a shortcut curve at sample points, and projecting the exact count back without ever running a full brute-force search! Here is how the 4-stage algorithm works under the hood: Stage 1 performs Rule Compression, converting complex OR rules into simple binary XOR parity checks to lower the mathematical degree. Stage 2 performs Variable Grouping, splitting switches into small buckets of size square root log n that interact only through a tiny summary budget. Stage 3 performs Shortcut Curve Sampling, evaluating a polynomial curve H of T at sample points where groups calculate local counts independently in parallel. Finally, Stage 4 performs Exact Reconstruction, interpolating sample data back to position T equals 0 to yield the exact solution count in subexponential time!",
-            2: "Let's move to Slide 2 to see how the algorithm works in four simple steps. Think of it like taking our combination lock and breaking it down: In Stage 1, we simplify complex rules using binary parity checks. In Stage 2, we split the light switches into small independent groups connected only by a summary budget. In Stage 3, we create a mathematical shortcut curve called H of T where groups decouple and calculate local counts independently. Finally, in Stage 4, we collect local data from these sample points and project the exact answer back to T equals 0, giving us the exact solution count without ever running a full brute-force search.",
-            3: "Now let's review Slide 3: Three Common Misconceptions to avoid during exams! First, does this prove P equals N P? The answer is no! Standard N P reductions enlarge the size of a problem, like photocopying a puzzle onto a huge piece of paper. This turns subexponential time back into exponential time for other N P problems. Second, does memory explode? No, the algorithm processes groups sequentially, keeping memory usage strictly inside standard polynomial space. Third, does it only check if one solution exists? No, it solves the much harder problem of counting every single valid solution, known as sharp k-SAT.",
-            4: "Slide 4 provides a Q and A cheat sheet for your oral defence or exam. If your professor asks why we use a shortcut curve H of T, explain that checking variables directly requires testing two to the n combinations at once because variables overlap. The shortcut curve deforms the problem so at sample points T equals 1 to Q, variables split into independent group buckets. Also, by balancing the sample collection cost, summary budget cost, and local group search cost, all three costs shrink together, guaranteeing subexponential speed!",
-            5: "Finally, Slide 5 summarizes our core takeaways. To wrap up: exact solution counting for sharp k-SAT can be done deterministically in subexponential time and polynomial space, disproving E T H, Strong E T H, and related hypotheses. For further reading, consult the original paper alongside your Sipser textbook chapters on N P-completeness and counting complexity. Feel free to review the slides or step through the interactive pipeline!"
-        };
-
-        const demoStages = {
-            1: {
-                title: "Stage 1: Rule Compression (Sparsification)",
-                state: "Simplifying Clauses into Parity Equations",
-                math: "Complex rules converted to simple binary XOR checks",
-                html: `
-                    <div class="space-y-3">
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            <strong class="text-blue-400">WHAT HAPPENS:</strong> The original logic formula is cleaned up so variables only appear a few times. Complex OR-clauses are rewritten into simple binary XOR equations.
-                        </p>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            <strong class="text-emerald-400">WHY WE DO IT:</strong> Complex logic clauses produce huge mathematical expressions that slow down computers. Parity checks keep calculations small and simple.
-                        </p>
-                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 font-mono text-xs text-blue-300">
-                            CleanFormula = SimplifyRules(OriginalFormula)<br>
-                            ParityChecks = ConvertToBinaryXOR(CleanFormula)  <span class="text-slate-500">// Low mathematical degree achieved</span>
-                        </div>
-                    </div>`
-            },
-            2: {
-                title: "Stage 2: Variable Grouping & Summary Budgets",
-                state: "Splitting Variables into Small Groups",
-                math: "Variables split into groups connected only by summary counts",
-                html: `
-                    <div class="space-y-3">
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            <strong class="text-blue-400">WHAT HAPPENS:</strong> Variables are divided into small groups. Instead of letting all variables talk to each other, they are only allowed to talk through a tiny "summary budget".
-                        </p>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            <strong class="text-emerald-400">WHY WE DO IT:</strong> Once the summary budget is fixed, each group can calculate its internal answers **independently** without waiting for other groups!
-                        </p>
-                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 font-mono text-xs text-amber-300">
-                            For each fixed summary budget:<br>
-                            &nbsp;&nbsp;TotalCount = Multiply( IndependentGroupCalculations )
-                        </div>
-                    </div>`
-            },
-            3: {
-                title: "Stage 3: Testing Sample Points on Shortcut Curve H(T)",
-                state: "Testing Sample Points T = 1..Q",
-                math: "Shortcut function H(T) evaluated at Q sample points",
-                html: `
-                    <div class="space-y-3">
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            <strong class="text-blue-400">WHAT HAPPENS:</strong> We construct a mathematical shortcut curve H(T). At sample test points T = 1, 2, ... Q, the formula deforms so all variable groups become completely independent.
-                        </p>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            <strong class="text-emerald-400">WHY WE DO IT:</strong> Calculating answers at these simplified sample points is millions of times faster than checking every combination directly.
-                        </p>
-                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 font-mono text-xs text-emerald-300">
-                            For Point in {1, 2, ..., Q}:<br>
-                            &nbsp;&nbsp;Evaluate independent group answers at sample Point
-                        </div>
-                    </div>`
-            },
-            4: {
-                title: "Stage 4: Project Back to Find the Exact Answer at T = 0",
-                state: "Reconstructing Exact Count at T = 0",
-                math: "Curve interpolation yields exact answer H(0) in subexponential time",
-                html: `
-                    <div class="space-y-3">
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            <strong class="text-blue-400">WHAT HAPPENS:</strong> We collect the local data gathered from all sample points, and project the mathematical curve back to position T = 0.
-                        </p>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            <strong class="text-emerald-400">WHY WE DO IT:</strong> Position T = 0 corresponds exactly to the true total number of valid solutions to the original logic problem, computed in subexponential time!
-                        </p>
-                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 font-mono text-xs text-purple-300">
-                            ExactCount = ProjectToPositionZero(SampleData)<br>
-                            Result: Exact Solution Count found in Subexponential Time!
-                        </div>
-                    </div>`
-            }
-        };
-
-        // --- CORE CONTROLLER FUNCTIONS ---
-
-        async function toggleAudio() {
-            if (isSpeaking) {
-                if (currentAudioObj) {
-                    currentAudioObj.pause();
-                    isSpeaking = false;
-                    updateAudioUIState('paused');
-                } else if (synth && synth.speaking) {
-                    synth.pause();
-                    isSpeaking = false;
-                    updateAudioUIState('paused');
-                }
-                return;
-            }
-
-            if (currentAudioObj && currentAudioObj.src && currentAudioObj.paused && currentAudioObj.currentTime > 0) {
-                currentAudioObj.play();
-                isSpeaking = true;
-                updateAudioUIState('playing');
-                return;
-            }
-
-            if (synth && synth.paused) {
-                synth.resume();
-                isSpeaking = true;
-                updateAudioUIState('playing');
-                return;
-            }
-
-            const textToSpeak = slideTranscripts[currentSlide] || "No transcript available for this slide.";
-
-            if (elevenApiKey && elevenApiKey.length > 0) {
-                await speakElevenLabs(textToSpeak);
-            } else {
-                speakWebSpeech(textToSpeak);
-            }
-        }
-
-        function stopAudio() {
-            if (synth) synth.cancel();
-            if (currentAudioObj) {
-                currentAudioObj.pause();
-                currentAudioObj = null;
-            }
-            isSpeaking = false;
-            const scrubber = document.getElementById('audioScrubber');
-            if (scrubber) scrubber.value = 0;
-            const timeLbl = document.getElementById('currentTimeLabel');
-            if (timeLbl) timeLbl.innerText = "0:00";
-            updateAudioUIState('stopped');
-        }
-
-        function switchSlide(slideNum) {
-            document.querySelectorAll('.slide-content').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white', 'font-semibold', 'shadow');
-                btn.classList.add('text-slate-400');
+        function showSlide(n) {
+            current = n;
+            document.querySelectorAll('.slide').forEach(s => {
+                s.classList.toggle('hidden', Number(s.dataset.slide) !== n);
             });
-
-            currentSlide = slideNum;
-            const targetSlide = document.getElementById(`slide-${slideNum}`);
-            if (targetSlide) targetSlide.classList.add('active');
-
-            const activeTab = document.getElementById(`tab-${slideNum}`);
-            if (activeTab) {
-                activeTab.classList.add('bg-blue-600', 'text-white', 'font-semibold', 'shadow');
-                activeTab.classList.remove('text-slate-400');
-            }
-
-            const footerNum = document.getElementById('footerSlideNum');
-            if (footerNum) footerNum.innerText = slideNum;
-
-            if (window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise();
-            }
-
-            stopAudio();
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                const on = Number(b.dataset.slide) === n;
+                b.classList.toggle('tab-active', on);
+                b.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            document.getElementById('slideNum').textContent = n;
+            stopSpeaking();
+            typesetSoon(document.getElementById('slide-' + n));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        async function speakElevenLabs(text) {
-            updateAudioUIState('loading');
-            
-            try {
-                const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${elevenVoiceId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'audio/mpeg',
-                        'xi-api-key': elevenApiKey,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: text,
-                        model_id: 'eleven_turbo_v2_5',
-                        voice_settings: {
-                            stability: 0.5,
-                            similarity_boost: 0.75,
-                            style: 0.0,
-                            use_speaker_boost: true
-                        }
-                    })
-                });
+        // ---------- MathJax helper (safe if MathJax is still loading) ----------
+        function typesetSoon(el) {
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise(el ? [el] : undefined).catch(() => {});
+            }
+        }
 
-                if (!response.ok) {
-                    const errDetails = await response.text();
-                    throw new Error(`API error ${response.status}: ${errDetails}`);
+        // ---------- Four-stage pipeline ----------
+        const stages = [
+                {
+                    title: "Stage 1: Turn each rule into a checker",
+                    body: `
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Think of each rule as a tiny checker. It says <strong>1</strong> if the rule is happy and <strong>0</strong> if it is not.
+                        </p>
+                        <div class="my-3 p-3 bg-slate-900 rounded-lg border border-slate-800 text-sm text-slate-200 leading-relaxed">
+                            Example rule: "switch A is ON, or switch B is OFF."<br>
+                            &bull; A is OFF and B is ON: the rule is unhappy, so the checker says <strong>0</strong>.<br>
+                            &bull; A is ON and B is ON: the rule is happy, so the checker says <strong>1</strong>.
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            A setting works only if every checker says 1. So the answer to "how many settings work?" is the number of settings where all checkers say 1. This step only rewrites the problem. It does not make anything faster yet.
+                        </p>`
+                },
+                {
+                    title: "Stage 2: Imagine teams that don't talk to each other",
+                    body: `
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Now imagine you could split the switches into a few teams, with no rule that uses switches from two different teams.
+                        </p>
+                        <div class="my-3 p-3 bg-slate-900 rounded-lg border border-slate-800 text-sm text-slate-200 leading-relaxed">
+                            Example: team 1 has 3 working settings, and team 2 has 2 working settings.<br>
+                            Since the teams don't interact, the total is 3 &times; 2 = <strong>6</strong>.
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Each team is still large, but checking every setting inside one team is far cheaper than checking every setting for all switches at once. The paper uses a number of teams that grows very slowly, roughly the square root of log n.
+                        </p>
+                        <p class="text-sm text-amber-200 leading-relaxed mt-3">
+                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> The catch: real formulas almost always have rules that link switches from different teams. Stage 3 deals with that.
+                        </p>`
+                },
+                {
+                    title: "Stage 3: Turn a dial to cut the links",
+                    body: `
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            The paper adds a <strong>dial</strong> (it calls it T) that changes how the rules between teams behave.
+                        </p>
+                        <ul class="mt-3 list-disc pl-5 space-y-2 text-sm text-slate-300 leading-relaxed">
+                            <li><strong>Dial at zero:</strong> the rules are exactly the original problem.</li>
+                            <li><strong>Dial at a few chosen positions (1, 2, 3, ... up to some number):</strong> each link between teams is replaced by a fixed number chosen in advance. The teams no longer depend on each other, so each one can be counted on its own.</li>
+                            <li><strong>One dial position at a time:</strong> the computer handles each position separately, so it never needs a lot of memory.</li>
+                        </ul>
+                        <p class="text-sm text-slate-400 leading-relaxed mt-3">
+                            Think of the dial as a way to temporarily pretend the teams don't talk, so we can count them separately.
+                        </p>`
+                },
+                {
+                    title: "Stage 4: Connect the dots",
+                    body: `
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            At each dial position we now have a count that was cheap to compute. The paper shows these counts follow a smooth, simple pattern, so a few of them are enough to pin the pattern down.
+                        </p>
+                        <div class="my-3 p-3 bg-slate-900 rounded-lg border border-slate-800 text-sm text-slate-200 leading-relaxed">
+                            It works like plotting a few points on graph paper, drawing the smooth curve through them, and reading off where the curve sits at dial position zero. That value is the true count.
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            <strong>Why it's fast:</strong> the teams are small enough to check cheaply, and the dial plus the curve let us avoid checking every setting of all switches at once.
+                        </p>
+                        <p class="text-sm text-slate-400 leading-relaxed mt-3">
+                            Quick check: in your own words, why does counting one team at a time beat counting everything together?
+                        </p>`
                 }
+            ];
 
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
+        let stage = 0;
 
-                stopAudio();
+        function renderStage(i) {
+            stage = i;
+            document.getElementById('stageBody').innerHTML = `
+                <h3 class="text-sm font-bold text-blue-400 mb-3">${stages[i].title}</h3>
+                ${stages[i].body}`;
+            document.getElementById('stageCounter').textContent = `Stage ${i + 1} / 4`;
+            document.querySelectorAll('.stage-card').forEach(card => {
+                card.classList.toggle('is-active', Number(card.dataset.stage) === i);
+            });
+            typesetSoon(document.getElementById('stageBody'));
+        }
 
-                currentAudioObj = new Audio(audioUrl);
+        function nextStage() { renderStage((stage + 1) % stages.length); }
+        function prevStage() { renderStage((stage - 1 + stages.length) % stages.length); }
 
-                currentAudioObj.onloadedmetadata = () => {
-                    const duration = currentAudioObj.duration;
-                    const durLbl = document.getElementById('durationLabel');
-                    if (durLbl) durLbl.innerText = formatTime(duration);
-                    const scrubber = document.getElementById('audioScrubber');
-                    if (scrubber) scrubber.max = duration;
-                };
+        // ---------- Read-aloud (browser speech, no API key needed) ----------
+        const transcripts = {
+            1: "Welcome. This lecture covers a claimed result that the Exponential Time Hypothesis is false. Picture a combination lock with n switches and m rules that must all be satisfied together. For decades, the belief was that counting all valid settings takes roughly exponential time. In October 2026, OpenAI posted a paper claiming an algorithm that counts all solutions of such problems in subexponential time, using polynomial memory. If the proof holds, the hypothesis is false. The claim is still under expert review, so present it as a claim.",
+            2: "There are four steps. First, each rule becomes a small checker that says 1 if the rule is happy and 0 if not. Second, imagine splitting the switches into teams that don't depend on each other. Then you can count each team separately and multiply the results, which is much cheaper. Real formulas have rules that link teams, so third, the paper adds a dial. At dial zero you have the original problem, and at a few other dial positions the links are replaced by fixed numbers, so each team can be counted alone. Fourth, those counts follow a smooth pattern, so a few of them let you work out the value at dial zero, which is the exact answer.",            3: "Three common mistakes. First, this does not prove P equals NP, because subexponential bounds do not carry through the reductions that connect NP problems. Second, memory does not blow up, since groups are processed one at a time. Third, the algorithm counts every solution, not just whether one exists.",
+            4: "This section lists questions you might be asked. Try to answer each one before opening the answer. The topics include why the parameter T is needed, how many groups there are, whether the groups run in parallel, whether the result has been verified, and whether the algorithm is practical.",
+            5: "To summarize: the claim is that exact counting of k-CNF solutions can be done in subexponential time, deterministically, using polynomial space. According to the paper, this refutes ETH, SETH, Gap-ETH, and NSETH. It does not settle P versus NP. Check the primary source and its verification status before you cite it."
+        };
 
-                currentAudioObj.ontimeupdate = () => {
-                    if (!isUserScrubbing) {
-                        const cur = currentAudioObj.currentTime;
-                        const scrubber = document.getElementById('audioScrubber');
-                        if (scrubber) scrubber.value = cur;
-                        const timeLbl = document.getElementById('currentTimeLabel');
-                        if (timeLbl) timeLbl.innerText = formatTime(cur);
-                    }
-                };
+        let speaking = false;
 
-                currentAudioObj.onended = () => stopAudio();
-                currentAudioObj.onerror = () => speakWebSpeech(text);
+        function setSpeakButton(on) {
+            const b = document.getElementById('speakBtn');
+            b.innerHTML = on
+                ? '<i class="fa-solid fa-stop"></i> Stop'
+                : '<i class="fa-solid fa-volume-high"></i> Read slide aloud';
+            speaking = on;
+        }
 
-                await currentAudioObj.play();
-                isSpeaking = true;
-                updateAudioUIState('playing');
+        function stopSpeaking() {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            setSpeakButton(false);
+        }
 
-            } catch (err) {
-                console.warn("ElevenLabs error, falling back to WebSpeech:", err);
-                speakWebSpeech(text);
+        function toggleSpeak() {
+            if (!('speechSynthesis' in window)) {
+                alert('Read-aloud is not supported in this browser.');
+                return;
             }
-        }
-
-        function speakWebSpeech(text) {
-            if (!synth) return;
-            stopAudio();
-
-            currentUtterance = new SpeechSynthesisUtterance(text);
-            currentUtterance.rate = 1.0;
-
-            const words = text.split(' ').length;
-            const approxDurationSec = Math.ceil((words / 150) * 60);
-
-            const durLbl = document.getElementById('durationLabel');
-            if (durLbl) durLbl.innerText = formatTime(approxDurationSec);
-            const scrubber = document.getElementById('audioScrubber');
-            if (scrubber) scrubber.max = approxDurationSec;
-
-            currentUtterance.onstart = () => {
-                isSpeaking = true;
-                updateAudioUIState('playing');
-            };
-
-            currentUtterance.onend = () => stopAudio();
-            currentUtterance.onerror = () => stopAudio();
-
-            synth.speak(currentUtterance);
-        }
-
-        function updateAudioUIState(state) {
-            const playIcon = document.getElementById('mainPlayIcon');
-            const playBtn = document.getElementById('mainPlayBtn');
-            const statusText = document.getElementById('audioStatusText');
-
-            if (!playIcon || !playBtn || !statusText) return;
-
-            if (state === 'loading') {
-                playIcon.className = "fa-solid fa-spinner fa-spin";
-                statusText.innerText = "Generating Speech...";
-                statusText.className = "text-amber-400 font-semibold";
-            } else if (state === 'playing') {
-                playIcon.className = "fa-solid fa-pause";
-                playBtn.className = "w-8 h-8 bg-amber-600 hover:bg-amber-500 text-white rounded-full flex items-center justify-center text-xs transition shadow shrink-0";
-                statusText.innerText = "Playing Explanation";
-                statusText.className = "text-emerald-400 font-semibold";
-            } else if (state === 'paused') {
-                playIcon.className = "fa-solid fa-play ml-0.5";
-                playBtn.className = "w-8 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-full flex items-center justify-center text-xs transition shadow shrink-0";
-                statusText.innerText = "Audio Paused";
-                statusText.className = "text-amber-400 font-semibold";
-            } else {
-                playIcon.className = "fa-solid fa-play ml-0.5";
-                playBtn.className = "w-8 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-full flex items-center justify-center text-xs transition shadow shrink-0";
-                statusText.innerText = "Slide Audio";
-                statusText.className = "text-blue-400 font-semibold";
+            if (speaking || window.speechSynthesis.speaking) {
+                stopSpeaking();
+                return;
             }
+            const u = new SpeechSynthesisUtterance(transcripts[current]);
+            u.rate = 0.95;
+            u.onend = () => setSpeakButton(false);
+            u.onerror = () => setSpeakButton(false);
+            setSpeakButton(true);
+            window.speechSynthesis.speak(u);
         }
 
-        function formatTime(seconds) {
-            const sec = Math.floor(seconds || 0);
-            const mins = Math.floor(sec / 60);
-            const remainingSec = sec % 60;
-            return `${mins}:${remainingSec < 10 ? '0' : ''}${remainingSec}`;
-        }
-
-        function renderDemoStep(step) {
-            currentDemoStep = step;
-            const stage = demoStages[step];
-
-            const view = document.getElementById('demo-stage-view');
-            if (view) {
-                view.innerHTML = `
-                    <h3 class="text-sm font-bold text-blue-400 font-mono mb-2">${stage.title}</h3>
-                    ${stage.html}
-                `;
-            }
-
-            const stepCtr = document.getElementById('stepCounter');
-            if (stepCtr) stepCtr.innerText = `Step ${step} / 4`;
-            
-            const stateLbl = document.getElementById('demo-state-label');
-            if (stateLbl) stateLbl.innerText = stage.state;
-
-            const mathSum = document.getElementById('demo-math-summary');
-            if (mathSum) mathSum.innerText = stage.math;
-
-            for (let i = 1; i <= 4; i++) {
-                const card = document.getElementById(`pipeline-card-${i}`);
-                if (card) {
-                    if (i === step) {
-                        card.className = "pipeline-card cursor-pointer p-3 rounded-lg border border-blue-500 bg-blue-950/40 step-active transition text-center";
-                    } else {
-                        card.className = "pipeline-card cursor-pointer p-3 rounded-lg border border-slate-700 bg-slate-950/60 transition text-center opacity-70";
-                    }
-                }
-            }
-
-            if (window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise();
-            }
-        }
-
-        function nextDemoStep() {
-            let nextStep = currentDemoStep + 1;
-            if (nextStep > 4) nextStep = 1;
-            renderDemoStep(nextStep);
-        }
-
-        function prevDemoStep() {
-            let prevStep = currentDemoStep - 1;
-            if (prevStep < 1) prevStep = 4;
-            renderDemoStep(prevStep);
-        }
-
-        function toggleAutoPlay() {
-            const btn = document.getElementById('autoPlayBtn');
-            if (autoPlayTimer) {
-                clearInterval(autoPlayTimer);
-                autoPlayTimer = null;
-                if (btn) {
-                    btn.innerHTML = `<i class="fa-solid fa-play"></i> Auto`;
-                    btn.className = "px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded text-xs font-semibold transition flex items-center gap-1";
-                }
-            } else {
-                autoPlayTimer = setInterval(nextDemoStep, 3500);
-                if (btn) {
-                    btn.innerHTML = `<i class="fa-solid fa-pause"></i> Pause`;
-                    btn.className = "px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-white rounded text-xs font-semibold transition flex items-center gap-1";
-                }
-            }
-        }
-
-        // --- ATTACH EVENT LISTENERS AFTER DOM IS READY ---
+        // ---------- Init ----------
         document.addEventListener('DOMContentLoaded', () => {
-            // Audio play button
-            const playBtn = document.getElementById('mainPlayBtn');
-            if (playBtn) playBtn.addEventListener('click', toggleAudio);
-
-            // Audio scrubber
-            const scrubber = document.getElementById('audioScrubber');
-            if (scrubber) {
-                scrubber.addEventListener('input', (e) => {
-                    isUserScrubbing = true;
-                    const timeLbl = document.getElementById('currentTimeLabel');
-                    if (timeLbl) timeLbl.innerText = formatTime(e.target.value);
-                });
-                scrubber.addEventListener('change', (e) => {
-                    isUserScrubbing = false;
-                    if (currentAudioObj && currentAudioObj.duration) {
-                        currentAudioObj.currentTime = parseFloat(e.target.value);
-                    }
-                });
-            }
-
-            // Slide Navigation Tabs
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const slideNum = parseInt(btn.getAttribute('data-slide'));
-                    switchSlide(slideNum);
-                });
-            });
-
-            // Demo Pipeline Controls
-            const prevBtn = document.getElementById('prevDemoBtn');
-            if (prevBtn) prevBtn.addEventListener('click', prevDemoStep);
-
-            const nextBtn = document.getElementById('nextDemoBtn');
-            if (nextBtn) nextBtn.addEventListener('click', nextDemoStep);
-
-            const autoBtn = document.getElementById('autoPlayBtn');
-            if (autoBtn) autoBtn.addEventListener('click', toggleAutoPlay);
-
-            document.querySelectorAll('.pipeline-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const step = parseInt(card.getAttribute('data-step'));
-                    renderDemoStep(step);
-                });
-            });
-
-            // Accordions
-            document.querySelectorAll('.accordion-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = btn.getAttribute('data-qa');
-                    const content = document.getElementById(id);
-                    const icon = document.getElementById(`${id}-icon`);
-                    if (content) {
-                        content.classList.toggle('hidden');
-                        if (icon) icon.classList.toggle('rotate-180');
-                    }
-                });
-            });
-
-            // Initial render
-            renderDemoStep(1);
+            showSlide(1);
+            renderStage(0);
         });
+        window.addEventListener('load', () => typesetSoon());
     </script>
 </body>
 </html>
